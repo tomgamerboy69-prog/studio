@@ -65,7 +65,9 @@ export function MyRecipes({ recipes, onDeleteRecipe, onAddIngredients }: MyRecip
             recipe={selectedRecipe} 
             onOpenChange={(isOpen) => !isOpen && setSelectedRecipe(null)}
             onAddIngredients={() => {
-                onAddIngredients(selectedRecipe.ingredients);
+                if (selectedRecipe) {
+                    onAddIngredients(selectedRecipe.ingredients);
+                }
                 setSelectedRecipe(null);
             }}
         />
