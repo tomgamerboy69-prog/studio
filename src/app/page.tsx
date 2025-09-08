@@ -225,6 +225,14 @@ export default function Home() {
     });
     setLists(updatedLists);
   };
+
+  const handleUpdateListItems = (listId: string, newItems: ShoppingItem[]) => {
+    setLists(prevLists => 
+        prevLists.map(list => 
+            list.id === listId ? { ...list, items: newItems } : list
+        )
+    );
+  };
   
   if (isInitialLoad) {
       return <div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
@@ -252,6 +260,7 @@ export default function Home() {
                 onToggleItem={handleToggleItem}
                 onDeleteItem={handleDeleteItem}
                 onClearCompleted={handleClearCompleted}
+                onUpdateListItems={handleUpdateListItems}
               />
             ) : (
               <div className="flex h-full flex-col items-center justify-center gap-4 text-center">

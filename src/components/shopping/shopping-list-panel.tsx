@@ -1,15 +1,17 @@
 
 'use client';
-import type { ShoppingList, Ingredient } from '@/lib/types';
+import type { ShoppingList, Ingredient, ShoppingItem } from '@/lib/types';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingListItem } from './shopping-list-item';
 import { RecipeHelper } from './recipe-helper';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { consolidateList } from '@/ai/flows/consolidate-list-flow';
+import { useToast } from '@/hooks/use-toast';
 
 interface ShoppingListPanelProps {
   list: ShoppingList;
@@ -19,6 +21,7 @@ interface ShoppingListPanelProps {
   onToggleItem: (listId: string, itemId: string) => void;
   onDeleteItem: (listId: string, itemId: string) => void;
   onClearCompleted: (listId: string) => void;
+  onUpdateListItems: (listId: string, items: ShoppingItem[]) => void;
 }
 
 export function ShoppingListPanel({
@@ -29,15 +32,39 @@ export function ShoppingListPanel({
   onToggleItem,
   onDeleteItem,
   onClearCompleted,
+  onUpdateListItems,
 }: ShoppingListPanelProps) {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('');
+  const [isConsolidating, setIsConsolidating] = useState(false);
+  const { toast } = useToast();
 
   const handleAddItem = () => {
     if (newItemName.trim()) {
       onAddItem(list.id, newItemName.trim(), newItemAmount.trim() || null);
       setNewItemName('');
       setNewItemAmount('');
+    }
+  };
+
+  const handleConsolidateList = async () => {
+    setIsConsolidating(true);
+    try {
+      const result = await consolidateList({ items: list.items });
+      onUpdateListItems(list.id, result.items);
+      toast({
+        title: 'List Consolidated',
+        description: 'Your shopping list has been consolidated.',
+      });
+    } catch (error) {
+      console.error('Failed to consolidate list:', error);
+      toast({
+        title: 'Error',
+        description: 'Could not consolidate the list. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsConsolidating(false);
     }
   };
   
@@ -49,12 +76,20 @@ export function ShoppingListPanel({
       <Card className="flex-shrink-0">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-headline text-2xl">{list.name}</CardTitle>
-          {purchasedItems.length > 0 && (
-            <Button variant="outline" size="sm" onClick={() => onClearCompleted(list.id)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Clear Completed
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {unpurchasedItems.length > 1 && (
+              <Button variant="outline" size="sm" onClick={handleConsolidateList} disabled={isConsolidating}>
+                {isConsolidating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                Consolidate
+              </Button>
+            )}
+            {purchasedItems.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => onClearCompleted(list.id)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Clear Completed
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 mb-4">

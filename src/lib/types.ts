@@ -1,11 +1,13 @@
 import { z } from 'zod';
 
-export interface ShoppingItem {
-  id: string;
-  name: string;
-  amount: string | null;
-  purchased: boolean;
-}
+export const ShoppingItemSchema = z.object({
+  id: z.string().describe('Unique identifier for the shopping item.'),
+  name: z.string().describe('The name of the shopping item.'),
+  amount: z.string().nullable().describe('The amount of the item (e.g., "1kg", "2 units").'),
+  purchased: z.boolean().describe('Whether the item has been purchased.'),
+});
+export type ShoppingItem = z.infer<typeof ShoppingItemSchema>;
+
 
 export interface ShoppingList {
   id:string;
