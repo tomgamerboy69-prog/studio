@@ -18,18 +18,18 @@ interface RecipeHelperProps {
 }
 
 export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: RecipeHelperProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMealType, setLoadingMealType] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const { toast } = useToast();
 
-  const handleGetRecipes = async () => {
-    setIsLoading(true);
+  const handleGetRecipes = async (mealType: string) => {
+    setLoadingMealType(mealType);
     setRecipes([]);
     try {
       const result = await suggestRecipes({
         pastPurchases: allPurchasedItems,
         currentList: list.items.map((item) => item.name),
-        mealType: 'any',
+        mealType,
       });
       setRecipes(result.recipes);
     } catch (error) {
@@ -40,7 +40,7 @@ export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: Reci
         variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      setLoadingMealType(null);
     }
   };
 
@@ -69,14 +69,20 @@ export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: Reci
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Button onClick={handleGetRecipes} disabled={isLoading}>
-          {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <ChefHat className="mr-2 h-4 w-4" />
-          )}
-          {isLoading ? 'Finding Recipes...' : 'Suggest Recipes'}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+            <Button onClick={() => handleGetRecipes('Breakfast')} disabled={!!loadingMealType}>
+                {loadingMealType === 'Breakfast' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
+                Breakfast
+            </Button>
+            <Button onClick={() => handleGetRecipes('Lunch')} disabled={!!loadingMealType}>
+                {loadingMealType === 'Lunch' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
+                Lunch
+            </Button>
+            <Button onClick={() => handleGetRecipes('Dinner')} disabled={!!loadingMealType}>
+                {loadingMealType === 'Dinner' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
+                Dinner
+            </Button>
+        </div>
 
         {recipes.length > 0 && (
           <div className="mt-4 space-y-2 animate-in fade-in">
