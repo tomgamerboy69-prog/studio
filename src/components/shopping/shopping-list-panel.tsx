@@ -1,6 +1,6 @@
 
 'use client';
-import type { ShoppingList } from '@/lib/types';
+import type { ShoppingList, Ingredient } from '@/lib/types';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,8 +15,8 @@ import { Separator } from '@/components/ui/separator';
 interface ShoppingListPanelProps {
   list: ShoppingList;
   allPurchasedItems: string[];
-  onAddItem: (listId: string, itemName: string) => void;
-  onAddItems: (listId: string, itemNames: string[]) => void;
+  onAddItem: (listId: string, itemName: string, itemAmount: string | null) => void;
+  onAddItems: (listId: string, items: Ingredient[]) => void;
   onToggleItem: (listId: string, itemId: string) => void;
   onDeleteItem: (listId: string, itemId: string) => void;
   onClearCompleted: (listId: string) => void;
@@ -32,11 +32,13 @@ export function ShoppingListPanel({
   onClearCompleted,
 }: ShoppingListPanelProps) {
   const [newItemName, setNewItemName] = useState('');
+  const [newItemAmount, setNewItemAmount] = useState('');
 
   const handleAddItem = () => {
     if (newItemName.trim()) {
-      onAddItem(list.id, newItemName.trim());
+      onAddItem(list.id, newItemName.trim(), newItemAmount.trim() || null);
       setNewItemName('');
+      setNewItemAmount('');
     }
   };
   
@@ -62,7 +64,14 @@ export function ShoppingListPanel({
               onChange={(e) => setNewItemName(e.target.value)}
               placeholder="Add an item, e.g., 'Apples'"
               onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
-              className="text-base"
+              className="text-base flex-grow"
+            />
+             <Input
+              value={newItemAmount}
+              onChange={(e) => setNewItemAmount(e.target.value)}
+              placeholder="Amount (e.g. 1kg)"
+              onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
+              className="text-base w-32"
             />
             <Button onClick={handleAddItem} aria-label="Add item">
               <Plus className="h-4 w-4" />
@@ -104,12 +113,12 @@ export function ShoppingListPanel({
         <SmartSuggestions 
           list={list} 
           allPurchasedItems={allPurchasedItems} 
-          onAddSuggestion={(itemName) => onAddItem(list.id, itemName)}
+          onAddSuggestion={(itemName) => onAddItem(list.id, itemName, null)}
         />
         <RecipeHelper 
           list={list}
           allPurchasedItems={allPurchasedItems}
-          onAddIngredients={(itemNames) => onAddItems(list.id, itemNames)}
+          onAddIngredients={(items) => onAddItems(list.id, items)}
         />
       </div>
     </div>

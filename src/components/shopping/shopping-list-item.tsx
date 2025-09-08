@@ -34,7 +34,10 @@ export function ShoppingListItem({ item, onToggle, onDelete }: ShoppingListItemP
           item.purchased ? 'line-through text-muted-foreground' : 'text-foreground'
         )}
       >
-        {item.name}
+        <span>{item.name}</span>
+        {item.amount && (
+            <span className="ml-2 text-sm text-muted-foreground">({item.amount})</span>
+        )}
       </label>
       <Button
         variant="ghost"

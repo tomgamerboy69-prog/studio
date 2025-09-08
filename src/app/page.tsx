@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import type { ShoppingList, ShoppingItem } from '@/lib/types';
+import type { ShoppingList, ShoppingItem, Ingredient } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { Header } from '@/components/layout/header';
@@ -15,17 +15,17 @@ const initialData: ShoppingList[] = [
     id: '1',
     name: 'Weekly Groceries',
     items: [
-      { id: '1-1', name: 'Milk', purchased: false },
-      { id: '1-2', name: 'Bread', purchased: false },
-      { id: '1-3', name: 'Eggs', purchased: true },
+      { id: '1-1', name: 'Milk', amount: '1 Gallon', purchased: false },
+      { id: '1-2', name: 'Bread', amount: '1 Loaf', purchased: false },
+      { id: '1-3', name: 'Eggs', amount: '1 Dozen', purchased: true },
     ],
   },
   {
     id: '2',
     name: 'Weekend BBQ',
     items: [
-      { id: '2-1', name: 'Sausages', purchased: false },
-      { id: '2-2', name: 'Buns', purchased: false },
+      { id: '2-1', name: 'Sausages', amount: '1 pack', purchased: false },
+      { id: '2-2', name: 'Buns', amount: '8-pack', purchased: false },
     ],
   },
 ];
@@ -36,8 +36,6 @@ export default function Home() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
-    // On first load, if no lists exist in localStorage, populate with initial data.
-    // Also, set an active list if none is set.
     const item = window.localStorage.getItem('shopping-lists');
     if (!item || JSON.parse(item).length === 0) {
       setLists(initialData);
@@ -47,7 +45,7 @@ export default function Home() {
     }
     setIsInitialLoad(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Should only run once on mount
+  }, []);
 
   const activeList = useMemo(() => {
     return lists.find((list) => list.id === activeListId);
@@ -80,10 +78,11 @@ export default function Home() {
     }
   }
 
-  const handleAddItem = (listId: string, itemName: string) => {
+  const handleAddItem = (listId: string, itemName: string, itemAmount: string | null) => {
     const newItem: ShoppingItem = {
       id: `${listId}-${Date.now()}`,
       name: itemName,
+      amount: itemAmount,
       purchased: false,
     };
     const updatedLists = lists.map((list) =>
@@ -92,10 +91,11 @@ export default function Home() {
     setLists(updatedLists);
   };
 
-  const handleAddItems = useCallback((listId: string, itemNames: string[]) => {
-    const newItems: ShoppingItem[] = itemNames.map(name => ({
+  const handleAddItems = useCallback((listId: string, itemsToAdd: Ingredient[]) => {
+    const newItems: ShoppingItem[] = itemsToAdd.map(ingredient => ({
       id: `${listId}-${Date.now()}-${Math.random()}`,
-      name,
+      name: ingredient.name,
+      amount: ingredient.amount,
       purchased: false,
     }));
     const updatedLists = lists.map((list) =>

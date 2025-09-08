@@ -8,13 +8,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Loader2, ChefHat, Plus } from 'lucide-react';
 import { suggestRecipes } from '@/ai/flows/suggest-recipes';
 import { useToast } from '@/hooks/use-toast';
-import type { ShoppingList, Recipe } from '@/lib/types';
+import type { ShoppingList, Recipe, Ingredient } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 
 interface RecipeHelperProps {
   list: ShoppingList;
   allPurchasedItems: string[];
-  onAddIngredients: (itemNames: string[]) => void;
+  onAddIngredients: (ingredients: Ingredient[]) => void;
 }
 
 export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: RecipeHelperProps) {
@@ -46,7 +46,7 @@ export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: Reci
 
   const handleAddAll = (recipe: Recipe) => {
     const itemsToAdd = recipe.ingredients.filter(
-      (ingredient) => !list.items.some((item) => item.name.toLowerCase() === ingredient.toLowerCase())
+      (ingredient) => !list.items.some((item) => item.name.toLowerCase() === ingredient.name.toLowerCase())
     );
     if(itemsToAdd.length > 0) {
         onAddIngredients(itemsToAdd);
@@ -90,7 +90,7 @@ export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: Reci
                         <p className="text-sm text-muted-foreground">{recipe.description}</p>
                         <div className="flex flex-wrap gap-1">
                             {recipe.ingredients.map((ing, i) => (
-                                <Badge key={i} variant="outline">{ing}</Badge>
+                                <Badge key={i} variant="outline">{ing.name} ({ing.amount})</Badge>
                             ))}
                         </div>
                         <Button size="sm" onClick={() => handleAddAll(recipe)}>
