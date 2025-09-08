@@ -1,12 +1,13 @@
 
 'use client';
-import type { ShoppingList, ShoppingItem } from '@/lib/types';
+import type { ShoppingList } from '@/lib/types';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingListItem } from './shopping-list-item';
 import { SmartSuggestions } from './smart-suggestions';
+import { RecipeHelper } from './recipe-helper';
 import { Plus, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -15,6 +16,7 @@ interface ShoppingListPanelProps {
   list: ShoppingList;
   allPurchasedItems: string[];
   onAddItem: (listId: string, itemName: string) => void;
+  onAddItems: (listId: string, itemNames: string[]) => void;
   onToggleItem: (listId: string, itemId: string) => void;
   onDeleteItem: (listId: string, itemId: string) => void;
   onClearCompleted: (listId: string) => void;
@@ -24,6 +26,7 @@ export function ShoppingListPanel({
   list,
   allPurchasedItems,
   onAddItem,
+  onAddItems,
   onToggleItem,
   onDeleteItem,
   onClearCompleted,
@@ -66,7 +69,7 @@ export function ShoppingListPanel({
             </Button>
           </div>
           
-          <ScrollArea className="h-[calc(100vh-420px)] pr-4 -mr-4">
+          <ScrollArea className="h-[calc(100vh-480px)] pr-4 -mr-4">
             {list.items.length === 0 ? (
                  <div className="text-center text-muted-foreground py-10">
                     <p>Your list is empty.</p>
@@ -97,11 +100,18 @@ export function ShoppingListPanel({
         </CardContent>
       </Card>
       
-      <SmartSuggestions 
-        list={list} 
-        allPurchasedItems={allPurchasedItems} 
-        onAddSuggestion={(itemName) => onAddItem(list.id, itemName)}
-      />
+      <div className="grid md:grid-cols-2 gap-6">
+        <SmartSuggestions 
+          list={list} 
+          allPurchasedItems={allPurchasedItems} 
+          onAddSuggestion={(itemName) => onAddItem(list.id, itemName)}
+        />
+        <RecipeHelper 
+          list={list}
+          allPurchasedItems={allPurchasedItems}
+          onAddIngredients={(itemNames) => onAddItems(list.id, itemNames)}
+        />
+      </div>
     </div>
   );
 }

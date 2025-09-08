@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import type { ShoppingList, ShoppingItem } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
@@ -91,6 +91,18 @@ export default function Home() {
     );
     setLists(updatedLists);
   };
+
+  const handleAddItems = useCallback((listId: string, itemNames: string[]) => {
+    const newItems: ShoppingItem[] = itemNames.map(name => ({
+      id: `${listId}-${Date.now()}-${Math.random()}`,
+      name,
+      purchased: false,
+    }));
+    const updatedLists = lists.map((list) =>
+      list.id === listId ? { ...list, items: [...newItems, ...list.items] } : list
+    );
+    setLists(updatedLists);
+  }, [lists, setLists]);
   
   const handleToggleItem = (listId: string, itemId: string) => {
     const updatedLists = lists.map((list) => {
@@ -155,6 +167,7 @@ export default function Home() {
                 list={activeList}
                 allPurchasedItems={allPurchasedItems}
                 onAddItem={handleAddItem}
+                onAddItems={handleAddItems}
                 onToggleItem={handleToggleItem}
                 onDeleteItem={handleDeleteItem}
                 onClearCompleted={handleClearCompleted}
