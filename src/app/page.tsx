@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import type { ShoppingList, ShoppingItem, Ingredient } from '@/lib/types';
+import type { ShoppingList, ShoppingItem, Ingredient, Recipe } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { Header } from '@/components/layout/header';
@@ -48,6 +48,7 @@ const formatAmount = (value: number, unit: string): string => {
 
 export default function Home() {
   const [lists, setLists] = useLocalStorage<ShoppingList[]>('shopping-lists', []);
+  const [savedRecipes, setSavedRecipes] = useLocalStorage<Recipe[]>('saved-recipes', []);
   const [activeListId, setActiveListId] = useLocalStorage<string | null>('active-list-id', null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
@@ -234,6 +235,17 @@ export default function Home() {
     );
   };
   
+  const handleAddRecipe = (recipe: Recipe) => {
+    setSavedRecipes(prev => {
+        if (prev.some(r => r.name === recipe.name)) return prev;
+        return [...prev, recipe];
+    })
+  }
+
+  const handleDeleteRecipe = (recipeName: string) => {
+      setSavedRecipes(prev => prev.filter(r => r.name !== recipeName));
+  }
+
   if (isInitialLoad) {
       return <div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
@@ -255,12 +267,15 @@ export default function Home() {
               <ShoppingListPanel
                 list={activeList}
                 allPurchasedItems={allPurchasedItems}
+                savedRecipes={savedRecipes}
                 onAddItem={handleAddItem}
                 onAddItems={handleAddItems}
                 onToggleItem={handleToggleItem}
                 onDeleteItem={handleDeleteItem}
                 onClearCompleted={handleClearCompleted}
                 onUpdateListItems={handleUpdateListItems}
+                onAddRecipe={handleAddRecipe}
+                onDeleteRecipe={handleDeleteRecipe}
               />
             ) : (
               <div className="flex h-full flex-col items-center justify-center gap-4 text-center">

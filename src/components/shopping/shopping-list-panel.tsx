@@ -1,12 +1,13 @@
 
 'use client';
-import type { ShoppingList, Ingredient, ShoppingItem } from '@/lib/types';
+import type { ShoppingList, Ingredient, ShoppingItem, Recipe } from '@/lib/types';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingListItem } from './shopping-list-item';
 import { RecipeHelper } from './recipe-helper';
+import { MyRecipes } from './my-recipes';
 import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -16,23 +17,29 @@ import { useToast } from '@/hooks/use-toast';
 interface ShoppingListPanelProps {
   list: ShoppingList;
   allPurchasedItems: string[];
+  savedRecipes: Recipe[];
   onAddItem: (listId: string, itemName: string, itemAmount: string | null) => void;
   onAddItems: (listId: string, items: Ingredient[]) => void;
   onToggleItem: (listId: string, itemId: string) => void;
   onDeleteItem: (listId: string, itemId: string) => void;
   onClearCompleted: (listId: string) => void;
   onUpdateListItems: (listId: string, items: ShoppingItem[]) => void;
+  onAddRecipe: (recipe: Recipe) => void;
+  onDeleteRecipe: (recipeName: string) => void;
 }
 
 export function ShoppingListPanel({
   list,
   allPurchasedItems,
+  savedRecipes,
   onAddItem,
   onAddItems,
   onToggleItem,
   onDeleteItem,
   onClearCompleted,
   onUpdateListItems,
+  onAddRecipe,
+  onDeleteRecipe,
 }: ShoppingListPanelProps) {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('');
@@ -112,7 +119,7 @@ export function ShoppingListPanel({
             </Button>
           </div>
           
-          <ScrollArea className="h-[calc(100vh-480px)] pr-4 -mr-4">
+          <ScrollArea className="h-[calc(100vh-550px)] pr-4 -mr-4">
             {list.items.length === 0 ? (
                  <div className="text-center text-muted-foreground py-10">
                     <p>Your list is empty.</p>
@@ -143,11 +150,16 @@ export function ShoppingListPanel({
         </CardContent>
       </Card>
       
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <RecipeHelper 
           list={list}
           allPurchasedItems={allPurchasedItems}
           onAddIngredients={(items) => onAddItems(list.id, items)}
+          onAddRecipe={onAddRecipe}
+        />
+        <MyRecipes
+            recipes={savedRecipes}
+            onDeleteRecipe={onDeleteRecipe}
         />
       </div>
     </div>

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, ChefHat, Plus } from 'lucide-react';
+import { Loader2, ChefHat, Plus, BookHeart } from 'lucide-react';
 import { suggestRecipes } from '@/ai/flows/suggest-recipes';
 import { useToast } from '@/hooks/use-toast';
 import type { ShoppingList, Recipe, Ingredient } from '@/lib/types';
@@ -15,9 +15,10 @@ interface RecipeHelperProps {
   list: ShoppingList;
   allPurchasedItems: string[];
   onAddIngredients: (ingredients: Ingredient[]) => void;
+  onAddRecipe: (recipe: Recipe) => void;
 }
 
-export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: RecipeHelperProps) {
+export function RecipeHelper({ list, allPurchasedItems, onAddIngredients, onAddRecipe }: RecipeHelperProps) {
   const [loadingMealType, setLoadingMealType] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const { toast } = useToast();
@@ -56,6 +57,14 @@ export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: Reci
       description: `Added ${itemsToAdd.length} ingredients from ${recipe.name} to your list.`,
     });
   };
+
+  const handleSaveRecipe = (recipe: Recipe) => {
+    onAddRecipe(recipe);
+    toast({
+        title: 'Recipe Saved',
+        description: `${recipe.name} has been saved to your recipes.`,
+    });
+  }
 
   return (
     <Card className="bg-secondary/50 border-secondary">
@@ -99,10 +108,16 @@ export function RecipeHelper({ list, allPurchasedItems, onAddIngredients }: Reci
                                 <Badge key={i} variant="outline">{ing.name} ({ing.amount})</Badge>
                             ))}
                         </div>
-                        <Button size="sm" onClick={() => handleAddAll(recipe)}>
-                            <Plus className="mr-2 h-4 w-4"/>
-                            Add all ingredients to list
-                        </Button>
+                        <div className="flex flex-wrap gap-2">
+                            <Button size="sm" onClick={() => handleAddAll(recipe)}>
+                                <Plus className="mr-2 h-4 w-4"/>
+                                Add all ingredients
+                            </Button>
+                             <Button size="sm" variant="outline" onClick={() => handleSaveRecipe(recipe)}>
+                                <BookHeart className="mr-2 h-4 w-4"/>
+                                Save to My Recipes
+                            </Button>
+                        </div>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
