@@ -54,6 +54,14 @@ export function ShoppingListPanel({
     }
   };
 
+  const handleAddItemsFromRecipe = (items: Ingredient[]) => {
+    onAddItems(list.id, items);
+    toast({
+        title: 'Ingredients Added',
+        description: `Added ${items.length} ingredients to your list.`
+    });
+  }
+
   const handleConsolidateList = async () => {
     setIsConsolidating(true);
     try {
@@ -160,6 +168,7 @@ export function ShoppingListPanel({
         <MyRecipes
             recipes={savedRecipes}
             onDeleteRecipe={onDeleteRecipe}
+            onAddIngredients={handleAddItemsFromRecipe}
         />
       </div>
     </div>

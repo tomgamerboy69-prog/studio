@@ -5,16 +5,17 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookMarked, Trash2 } from 'lucide-react';
-import type { Recipe } from '@/lib/types';
+import type { Recipe, Ingredient } from '@/lib/types';
 import { RecipeViewDialog } from './recipe-view-dialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 interface MyRecipesProps {
   recipes: Recipe[];
   onDeleteRecipe: (recipeName: string) => void;
+  onAddIngredients: (ingredients: Ingredient[]) => void;
 }
 
-export function MyRecipes({ recipes, onDeleteRecipe }: MyRecipesProps) {
+export function MyRecipes({ recipes, onDeleteRecipe, onAddIngredients }: MyRecipesProps) {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   return (
@@ -63,6 +64,10 @@ export function MyRecipes({ recipes, onDeleteRecipe }: MyRecipesProps) {
         <RecipeViewDialog 
             recipe={selectedRecipe} 
             onOpenChange={(isOpen) => !isOpen && setSelectedRecipe(null)}
+            onAddIngredients={() => {
+                onAddIngredients(selectedRecipe.ingredients);
+                setSelectedRecipe(null);
+            }}
         />
     )}
     </>

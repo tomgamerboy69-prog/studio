@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -11,13 +12,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Recipe } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
+import { Button } from '../ui/button';
+import { Plus } from 'lucide-react';
 
 interface RecipeViewDialogProps {
   recipe: Recipe;
   onOpenChange: (isOpen: boolean) => void;
+  onAddIngredients: () => void;
 }
 
-export function RecipeViewDialog({ recipe, onOpenChange }: RecipeViewDialogProps) {
+export function RecipeViewDialog({ recipe, onOpenChange, onAddIngredients }: RecipeViewDialogProps) {
   return (
     <Dialog open={true} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -53,6 +57,12 @@ export function RecipeViewDialog({ recipe, onOpenChange }: RecipeViewDialogProps
                 </div>
             </div>
         </ScrollArea>
+        <DialogFooter>
+            <Button onClick={onAddIngredients}>
+                <Plus className="mr-2 h-4 w-4"/>
+                Add ingredients to list
+            </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
