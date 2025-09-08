@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingListItem } from './shopping-list-item';
-import { SmartSuggestions } from './smart-suggestions';
 import { RecipeHelper } from './recipe-helper';
 import { Plus, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -109,12 +108,7 @@ export function ShoppingListPanel({
         </CardContent>
       </Card>
       
-      <div className="grid md:grid-cols-2 gap-6">
-        <SmartSuggestions 
-          list={list} 
-          allPurchasedItems={allPurchasedItems} 
-          onAddSuggestion={(itemName) => onAddItem(list.id, itemName, null)}
-        />
+      <div className="grid grid-cols-1 gap-6">
         <RecipeHelper 
           list={list}
           allPurchasedItems={allPurchasedItems}
