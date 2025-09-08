@@ -10,6 +10,8 @@ import { suggestRecipes } from '@/ai/flows/suggest-recipes';
 import { useToast } from '@/hooks/use-toast';
 import type { ShoppingList, Recipe, Ingredient } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 interface RecipeHelperProps {
   list: ShoppingList;
@@ -21,6 +23,7 @@ interface RecipeHelperProps {
 export function RecipeHelper({ list, allPurchasedItems, onAddIngredients, onAddRecipe }: RecipeHelperProps) {
   const [loadingMealType, setLoadingMealType] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [servings, setServings] = useState(2);
   const { toast } = useToast();
 
   const handleGetRecipes = async (mealType: string) => {
@@ -31,6 +34,7 @@ export function RecipeHelper({ list, allPurchasedItems, onAddIngredients, onAddR
         pastPurchases: allPurchasedItems,
         currentList: list.items.map((item) => item.name),
         mealType,
+        servings: servings > 0 ? servings : 2,
       });
       setRecipes(result.recipes);
     } catch (error) {
@@ -78,19 +82,33 @@ export function RecipeHelper({ list, allPurchasedItems, onAddIngredients, onAddR
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-2">
-            <Button onClick={() => handleGetRecipes('Breakfast')} disabled={!!loadingMealType}>
-                {loadingMealType === 'Breakfast' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
-                Breakfast
-            </Button>
-            <Button onClick={() => handleGetRecipes('Lunch')} disabled={!!loadingMealType}>
-                {loadingMealType === 'Lunch' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
-                Lunch
-            </Button>
-            <Button onClick={() => handleGetRecipes('Dinner')} disabled={!!loadingMealType}>
-                {loadingMealType === 'Dinner' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
-                Dinner
-            </Button>
+        <div className="flex flex-wrap gap-2 items-end">
+            <div className='flex flex-wrap gap-2'>
+                <Button onClick={() => handleGetRecipes('Breakfast')} disabled={!!loadingMealType}>
+                    {loadingMealType === 'Breakfast' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
+                    Breakfast
+                </Button>
+                <Button onClick={() => handleGetRecipes('Lunch')} disabled={!!loadingMealType}>
+                    {loadingMealType === 'Lunch' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
+                    Lunch
+                </Button>
+                <Button onClick={() => handleGetRecipes('Dinner')} disabled={!!loadingMealType}>
+                    {loadingMealType === 'Dinner' ? ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> ) : ( <ChefHat className="mr-2 h-4 w-4" /> )}
+                    Dinner
+                </Button>
+            </div>
+            <div className="grid w-full max-w-[120px] items-center gap-1.5">
+                <Label htmlFor="servings">Servings</Label>
+                <Input 
+                    type="number" 
+                    id="servings" 
+                    value={servings} 
+                    onChange={(e) => setServings(parseInt(e.target.value, 10))}
+                    min="1"
+                    className="h-9"
+                    disabled={!!loadingMealType}
+                />
+            </div>
         </div>
 
         {recipes.length > 0 && (

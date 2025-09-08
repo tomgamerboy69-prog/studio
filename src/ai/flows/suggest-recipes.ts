@@ -16,6 +16,7 @@ const SuggestRecipesInputSchema = z.object({
   currentList: z.array(z.string()).optional().describe('The current shopping list.'),
   pastPurchases: z.array(z.string()).optional().describe('A list of past purchases.'),
   mealType: z.string().optional().describe('The type of meal (e.g., "dinner", "quick lunch").'),
+  servings: z.number().optional().describe('The number of servings the user wants to cook.'),
 });
 export type SuggestRecipesInput = z.infer<typeof SuggestRecipesInputSchema>;
 
@@ -50,6 +51,9 @@ Please consider the following information:
 {{/if}}
 {{#if mealType}}
 - The user is looking for {{mealType}} ideas.
+{{/if}}
+{{#if servings}}
+- The user wants to cook for {{servings}} people. Adjust the ingredient amounts accordingly.
 {{/if}}
 
 Based on this, suggest a few recipes. For each recipe, provide a name, a short description, a list of ingredients with their required amounts (e.g., "500g", "1 cup", "2 units"), and a list of preparation steps.
