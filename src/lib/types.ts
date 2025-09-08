@@ -24,6 +24,7 @@ export type Ingredient = z.infer<typeof IngredientSchema>;
 export const RecipeSchema = z.object({
   name: z.string().describe('The name of the recipe.'),
   description: z.string().describe('A brief description of the recipe.'),
+  servings: z.number().describe('The number of servings this recipe makes.'),
   ingredients: z.array(IngredientSchema).describe('A list of ingredients for the recipe, including amounts.'),
   steps: z.array(z.string()).describe('The steps to prepare the recipe.'),
 });

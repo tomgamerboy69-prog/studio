@@ -56,7 +56,7 @@ Please consider the following information:
 - The user wants to cook for {{servings}} people. Adjust the ingredient amounts accordingly.
 {{/if}}
 
-Based on this, suggest a few recipes. For each recipe, provide a name, a short description, a list of ingredients with their required amounts (e.g., "500g", "1 cup", "2 units"), and a list of preparation steps.
+Based on this, suggest a few recipes. For each recipe, provide a name, a short description, the number of servings it makes, a list of ingredients with their required amounts (e.g., "500g", "1 cup", "2 units"), and a list of preparation steps.
 Prioritize recipes that use items from the current list or past purchases.
 Do not suggest ingredients that are already in the current shopping list.`,
 });

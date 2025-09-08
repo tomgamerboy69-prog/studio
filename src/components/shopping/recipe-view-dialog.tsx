@@ -13,7 +13,7 @@ import type { Recipe } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
 
 interface RecipeViewDialogProps {
   recipe: Recipe;
@@ -27,7 +27,15 @@ export function RecipeViewDialog({ recipe, onOpenChange, onAddIngredients }: Rec
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-headline">{recipe.name}</DialogTitle>
-          <DialogDescription>{recipe.description}</DialogDescription>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground pt-1">
+            <p>{recipe.description}</p>
+            {recipe.servings > 0 && (
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <Users className="w-4 h-4" />
+                    <span>Serves {recipe.servings}</span>
+                </div>
+            )}
+          </div>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] pr-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
