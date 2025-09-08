@@ -30,6 +30,22 @@ const initialData: ShoppingList[] = [
   },
 ];
 
+const parseAmount = (amount: string | null): { value: number; unit: string } => {
+    if (!amount) return { value: 0, unit: '' };
+    const match = amount.match(/^(\d*\.?\d+)\s*([a-zA-Z-]*)$/);
+    if (match) {
+        const [, value, unit] = match;
+        return { value: parseFloat(value), unit: unit.trim() };
+    }
+    const value = parseFloat(amount);
+    return isNaN(value) ? { value: 0, unit: amount.trim() } : { value, unit: '' };
+};
+
+const formatAmount = (value: number, unit: string): string => {
+    if (!unit) return value.toString();
+    return `${value} ${unit}`;
+};
+
 export default function Home() {
   const [lists, setLists] = useLocalStorage<ShoppingList[]>('shopping-lists', []);
   const [activeListId, setActiveListId] = useLocalStorage<string | null>('active-list-id', null);
@@ -79,30 +95,95 @@ export default function Home() {
   }
 
   const handleAddItem = (listId: string, itemName: string, itemAmount: string | null) => {
-    const newItem: ShoppingItem = {
-      id: `${listId}-${Date.now()}`,
-      name: itemName,
-      amount: itemAmount,
-      purchased: false,
-    };
-    const updatedLists = lists.map((list) =>
-      list.id === listId ? { ...list, items: [newItem, ...list.items] } : list
-    );
-    setLists(updatedLists);
-  };
+    setLists(prevLists => {
+        const updatedLists = prevLists.map(list => {
+            if (list.id === listId) {
+                const existingItemIndex = list.items.findIndex(
+                    item => item.name.toLowerCase() === itemName.toLowerCase() && !item.purchased
+                );
+
+                if (existingItemIndex > -1) {
+                    const existingItem = list.items[existingItemIndex];
+                    const existingAmount = parseAmount(existingItem.amount);
+                    const newAmount = parseAmount(itemAmount);
+
+                    let combinedAmountStr = existingItem.amount;
+                    if (existingAmount.unit.toLowerCase() === newAmount.unit.toLowerCase()) {
+                        const combinedValue = existingAmount.value + newAmount.value;
+                        combinedAmountStr = formatAmount(combinedValue, existingAmount.unit);
+                    } else if(newAmount.value > 0) { // If units are different, append
+                        combinedAmountStr = `${existingItem.amount} + ${itemAmount}`;
+                    }
+
+                    const updatedItems = [...list.items];
+                    updatedItems[existingItemIndex] = {
+                        ...existingItem,
+                        amount: combinedAmountStr,
+                    };
+                    return { ...list, items: updatedItems };
+
+                } else {
+                    const newItem: ShoppingItem = {
+                        id: `${listId}-${Date.now()}`,
+                        name: itemName,
+                        amount: itemAmount,
+                        purchased: false,
+                    };
+                    return { ...list, items: [newItem, ...list.items] };
+                }
+            }
+            return list;
+        });
+        return updatedLists;
+    });
+};
 
   const handleAddItems = useCallback((listId: string, itemsToAdd: Ingredient[]) => {
-    const newItems: ShoppingItem[] = itemsToAdd.map(ingredient => ({
-      id: `${listId}-${Date.now()}-${Math.random()}`,
-      name: ingredient.name,
-      amount: ingredient.amount,
-      purchased: false,
-    }));
-    const updatedLists = lists.map((list) =>
-      list.id === listId ? { ...list, items: [...newItems, ...list.items] } : list
-    );
-    setLists(updatedLists);
-  }, [lists, setLists]);
+    setLists(prevLists => {
+        const updatedLists = prevLists.map(list => {
+            if (list.id === listId) {
+                let currentItems = [...list.items];
+                const newItems: ShoppingItem[] = [];
+
+                itemsToAdd.forEach(ingredient => {
+                    const existingItemIndex = currentItems.findIndex(
+                        item => item.name.toLowerCase() === ingredient.name.toLowerCase() && !item.purchased
+                    );
+
+                    if (existingItemIndex > -1) {
+                        const existingItem = currentItems[existingItemIndex];
+                        const existingAmount = parseAmount(existingItem.amount);
+                        const newAmount = parseAmount(ingredient.amount);
+                        
+                        let combinedAmountStr = existingItem.amount;
+                        if (existingAmount.unit.toLowerCase() === newAmount.unit.toLowerCase() && existingAmount.value > 0 && newAmount.value > 0) {
+                            const combinedValue = existingAmount.value + newAmount.value;
+                            combinedAmountStr = formatAmount(combinedValue, existingAmount.unit);
+                        } else if(newAmount.value > 0) {
+                            combinedAmountStr = `${existingItem.amount} + ${ingredient.amount}`;
+                        }
+                        
+                        currentItems[existingItemIndex] = {
+                            ...existingItem,
+                            amount: combinedAmountStr,
+                        };
+                    } else {
+                         newItems.push({
+                            id: `${listId}-${Date.now()}-${Math.random()}`,
+                            name: ingredient.name,
+                            amount: ingredient.amount,
+                            purchased: false,
+                        });
+                    }
+                });
+
+                return { ...list, items: [...newItems, ...currentItems] };
+            }
+            return list;
+        });
+        return updatedLists;
+    });
+}, [setLists]);
   
   const handleToggleItem = (listId: string, itemId: string) => {
     const updatedLists = lists.map((list) => {
