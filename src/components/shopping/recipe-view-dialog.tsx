@@ -9,30 +9,65 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import type { Recipe } from '@/lib/types';
+import type { Recipe, Ingredient } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import { Plus, Users } from 'lucide-react';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { useState, useEffect } from 'react';
+import { parseAmount, formatAmount } from '@/lib/utils';
 
 interface RecipeViewDialogProps {
   recipe: Recipe;
   onOpenChange: (isOpen: boolean) => void;
-  onAddIngredients: () => void;
+  onAddIngredients: (ingredients: Ingredient[]) => void;
 }
 
 export function RecipeViewDialog({ recipe, onOpenChange, onAddIngredients }: RecipeViewDialogProps) {
+    const [servings, setServings] = useState(recipe.servings > 0 ? recipe.servings : 1);
+    const [ingredients, setIngredients] = useState<Ingredient[]>(recipe.ingredients);
+  
+    useEffect(() => {
+        if (recipe.servings > 0 && servings > 0) {
+            const ratio = servings / recipe.servings;
+            const scaledIngredients = recipe.ingredients.map(ing => {
+                const { value, unit } = parseAmount(ing.amount);
+                if(value > 0) {
+                    const scaledValue = Math.round(value * ratio * 100) / 100; // round to 2 decimal places
+                    return { ...ing, amount: formatAmount(scaledValue, unit) };
+                }
+                return ing;
+            });
+            setIngredients(scaledIngredients);
+        } else {
+            setIngredients(recipe.ingredients);
+        }
+
+    }, [servings, recipe]);
+
   return (
     <Dialog open={true} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-headline">{recipe.name}</DialogTitle>
           <div className="flex items-center gap-4 text-sm text-muted-foreground pt-1">
-            <p>{recipe.description}</p>
+            <p className='flex-1'>{recipe.description}</p>
             {recipe.servings > 0 && (
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <Users className="w-4 h-4" />
-                    <span>Serves {recipe.servings}</span>
+                    <Label htmlFor="servings-dialog" className="flex items-center gap-1.5">
+                        <Users className="w-4 h-4" />
+                        <span>Servings</span>
+                    </Label>
+                    <Input 
+                        id="servings-dialog"
+                        type="number" 
+                        value={servings}
+                        onChange={(e) => setServings(Math.max(1, parseInt(e.target.value, 10)))}
+                        min="1"
+                        className="h-8 w-16"
+                    />
                 </div>
             )}
           </div>
@@ -42,7 +77,7 @@ export function RecipeViewDialog({ recipe, onOpenChange, onAddIngredients }: Rec
                 <div className="md:col-span-1">
                     <h3 className="font-semibold mb-2 text-lg">Ingredients</h3>
                     <ul className="space-y-1">
-                        {recipe.ingredients.map((ing, i) => (
+                        {ingredients.map((ing, i) => (
                             <li key={i} className="flex justify-between">
                                 <span>{ing.name}</span>
                                 <Badge variant="secondary">{ing.amount}</Badge>
@@ -66,7 +101,7 @@ export function RecipeViewDialog({ recipe, onOpenChange, onAddIngredients }: Rec
             </div>
         </ScrollArea>
         <DialogFooter>
-            <Button onClick={onAddIngredients}>
+            <Button onClick={() => onAddIngredients(ingredients)}>
                 <Plus className="mr-2 h-4 w-4"/>
                 Add ingredients to list
             </Button>

@@ -18,6 +18,11 @@ interface MyRecipesProps {
 export function MyRecipes({ recipes, onDeleteRecipe, onAddIngredients }: MyRecipesProps) {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
+  const handleAddIngredients = (ingredients: Ingredient[]) => {
+    onAddIngredients(ingredients);
+    setSelectedRecipe(null);
+  }
+
   return (
     <>
     <Card className="bg-secondary/50 border-secondary">
@@ -64,12 +69,7 @@ export function MyRecipes({ recipes, onDeleteRecipe, onAddIngredients }: MyRecip
         <RecipeViewDialog 
             recipe={selectedRecipe} 
             onOpenChange={(isOpen) => !isOpen && setSelectedRecipe(null)}
-            onAddIngredients={() => {
-                if (selectedRecipe) {
-                    onAddIngredients(selectedRecipe.ingredients);
-                }
-                setSelectedRecipe(null);
-            }}
+            onAddIngredients={handleAddIngredients}
         />
     )}
     </>

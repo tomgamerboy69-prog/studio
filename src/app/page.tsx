@@ -9,6 +9,7 @@ import { Header } from '@/components/layout/header';
 import { ListManager } from '@/components/layout/list-manager';
 import { ShoppingListPanel } from '@/components/shopping/shopping-list-panel';
 import { Loader2, PackageOpen } from 'lucide-react';
+import { parseAmount, formatAmount } from '@/lib/utils';
 
 const initialData: ShoppingList[] = [
   {
@@ -29,22 +30,6 @@ const initialData: ShoppingList[] = [
     ],
   },
 ];
-
-const parseAmount = (amount: string | null): { value: number; unit: string } => {
-    if (!amount) return { value: 0, unit: '' };
-    const match = amount.match(/^(\d*\.?\d+)\s*([a-zA-Z-]*)$/);
-    if (match) {
-        const [, value, unit] = match;
-        return { value: parseFloat(value), unit: unit.trim() };
-    }
-    const value = parseFloat(amount);
-    return isNaN(value) ? { value: 0, unit: amount.trim() } : { value, unit: '' };
-};
-
-const formatAmount = (value: number, unit: string): string => {
-    if (!unit) return value.toString();
-    return `${value} ${unit}`;
-};
 
 export default function Home() {
   const [lists, setLists] = useLocalStorage<ShoppingList[]>('shopping-lists', []);
