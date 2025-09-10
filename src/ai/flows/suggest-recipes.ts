@@ -39,16 +39,10 @@ const prompt = ai.definePrompt({
   output: {
     schema: SuggestRecipesOutputSchema,
   },
-  prompt: `You are a helpful culinary assistant. Your task is to suggest recipes based on the user's context.
+  prompt: `You are a helpful culinary assistant. Your task is to suggest a few random, popular recipes.
 Suggest 2-3 recipes.
 
-Please consider the following information:
-{{#if currentList}}
-- Items in the current shopping list: {{#each currentList}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
-{{/if}}
-{{#if pastPurchases}}
-- User's past purchases: {{#each pastPurchases}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
-{{/if}}
+Please consider the following user preferences:
 {{#if mealType}}
 - The user is looking for {{mealType}} ideas.
 {{/if}}
@@ -57,8 +51,7 @@ Please consider the following information:
 {{/if}}
 
 Based on this, suggest a few recipes. For each recipe, provide a name, a short description, the number of servings it makes, a list of ingredients with their required amounts (e.g., "500g", "1 cup", "2 units"), and a list of preparation steps.
-Prioritize recipes that use items from the current list or past purchases.
-Do not suggest ingredients that are already in the current shopping list.`,
+The recipes should be varied and appealing.`,
 });
 
 const suggestRecipesFlow = ai.defineFlow(
